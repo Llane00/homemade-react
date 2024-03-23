@@ -1,5 +1,5 @@
 import React from "./core/react";
 
-const App = React.createElement("div", { id: "app" }, 'Hello', ' ', 'React', '!');
+const App = <div>Hello React!</div>
 
 export default App;
