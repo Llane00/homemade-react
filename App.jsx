@@ -1,4 +1,4 @@
-import React from "./core/react";
+import React from "./core/React";
 
 const App = <div>Hello React!</div>
 

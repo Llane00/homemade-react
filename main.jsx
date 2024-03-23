@@ -1,4 +1,4 @@
-import ReactDOM from './core/react-dom.js';
-import App from './App.jsx';
+import ReactDOM from './core/ReactDOM.js';
+import App from './app.jsx';
 
 ReactDOM.createRoot(document.querySelector("#root")).render(App);
