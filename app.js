@@ -1,16 +1,5 @@
-const textNode = {
-  type: "TEXT_ELEMENT",
-  props: {
-    children: 'app'
-  }
-}
+import ReactDom from "./core/reactDom";
 
-const app = {
-  type: "div",
-  props: {
-    id: "app",
-    children: [textNode]
-  }
-}
+const App = ReactDom.createElement("div", { id: "app" }, 'Hello', ' ', 'React', '!');
 
-export default app;
+export default App;

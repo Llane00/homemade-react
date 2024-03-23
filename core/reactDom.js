@@ -1,16 +1,29 @@
-function createElement(element) {
-  const { type } = element;
-  return document.createElement(type);
+function createTextNode(text) {
+  return {
+    type: "TEXT_ELEMENT",
+    props: {
+      nodeValue: text,
+      children: []
+    }
+  }
 }
 
-function createTextElement(text) {
-  return document.createTextNode(text);
+function createElement(type, props, ...children) {
+  return {
+    type,
+    props: {
+      ...props,
+      children: children.map((child) => {
+        return typeof child === 'object' ? child : createTextNode(child);
+      })
+    }
+  }
 }
 
 function render(element, container) {
   const domElement = element.type === "TEXT_ELEMENT"
-    ? createTextElement(element.props.children)
-    : createElement(element);
+    ? document.createTextNode("")
+    : document.createElement(element.type);
 
   Object.keys(element.props).forEach((key) => {
     if (key !== "children") {
@@ -18,21 +31,19 @@ function render(element, container) {
     }
   })
 
-  if (element.props.children instanceof Array && element.props.children.length > 0) {
-    element.props.children.forEach((child) => {
-      if (typeof child === 'string') {
-        child = {
-          type: "TEXT_ELEMENT",
-          props: {
-            children: child
-          }
-        };
-      }
+  const children = element.props.children;
+  if (children instanceof Array && children.length > 0) {
+    children.forEach((child) => {
       render(child, domElement);
     })
   }
 
-  container.appendChild(domElement);
+  container.append(domElement);
 }
 
-export { render };
+const ReactDom = {
+  createElement,
+  render
+}
+
+export default ReactDom;
