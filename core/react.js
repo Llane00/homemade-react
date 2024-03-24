@@ -68,18 +68,16 @@ const getNextWorkOfUnit = (fiber) => {
   }
 
   let parent = fiber.parent;
-  return parent?.sibling;
-
-  // while (true) {
-  //   if (!parent) {
-  //     return null;
-  //   }
-  //   if (parent?.sibling) {
-  //     return parent?.sibling;
-  //   } else {
-  //     parent = parent?.parent;
-  //   }
-  // }
+  while (true) {
+    if (!parent) {
+      return null;
+    }
+    if (parent?.sibling) {
+      return parent.sibling;
+    } else {
+      parent = parent?.parent;
+    }
+  }
 }
 
 const handleWorkOfUnit = (fiber) => {
