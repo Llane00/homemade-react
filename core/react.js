@@ -34,46 +34,40 @@ const updateProps = (domElement, vdom) => {
   })
 }
 
-const handleWorkOfUnit = (work) => {
-  if (!work.dom) {
-    const domElement = work.dom = createDom(work.type);
-    updateProps(domElement, work);
-    if (work.parent) {
-      work.parent?.dom.append(domElement);
-    }
-  }
-
-  const children = work.props.children;
+const handleChildrenRelationship = (fiber) => {
+  const children = fiber.props.children;
   let prevChild = null;
   if (children) {
     children.forEach((child, index) => {
-      const newWork = {
+      const newFiber = {
         type: child.type,
         props: child.props,
         dom: null,
-        parent: work,
+        parent: fiber,
         child: null,
         sibling: null,
       }
 
       if (index === 0) {
-        work.child = newWork;
+        fiber.child = newFiber;
       } else {
-        prevChild.sibling = newWork;
+        prevChild.sibling = newFiber;
       }
-      prevChild = newWork;
+      prevChild = newFiber;
     });
   }
+}
 
-  if (work.child) {
-    return work.child;
+const getNextWorkOfUnit = (fiber) => {
+  if (fiber.child) {
+    return fiber.child;
   }
 
-  if (work.sibling) {
-    return work.sibling;
+  if (fiber.sibling) {
+    return fiber.sibling;
   }
 
-  let parent = work.parent;
+  let parent = fiber.parent;
   return parent?.sibling;
 
   // while (true) {
@@ -86,6 +80,20 @@ const handleWorkOfUnit = (work) => {
   //     parent = parent?.parent;
   //   }
   // }
+}
+
+const handleWorkOfUnit = (fiber) => {
+  if (!fiber.dom) {
+    const domElement = fiber.dom = createDom(fiber.type);
+    updateProps(domElement, fiber);
+    if (fiber.parent) {
+      fiber.parent?.dom.append(domElement);
+    }
+  }
+
+  handleChildrenRelationship(fiber);
+
+  return getNextWorkOfUnit(fiber);
 }
 
 let nextWorkOfUnit = null;
