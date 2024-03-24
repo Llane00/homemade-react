@@ -20,27 +20,96 @@ function createElement(type, props, ...children) {
   }
 }
 
-function render(element, container) {
-  const domElement = element.type === "TEXT_ELEMENT"
+const createDom = (type) => {
+  return type === "TEXT_ELEMENT"
     ? document.createTextNode("")
-    : document.createElement(element.type);
+    : document.createElement(type);
+}
 
-  // 除了 children 之外的 props 都添加到 domElement 上
-  Object.keys(element.props).forEach((key) => {
+const updateProps = (domElement, vdom) => {
+  Object.keys(vdom.props).forEach((key) => {
     if (key !== "children") {
-      domElement[key] = element.props[key];
+      domElement[key] = vdom.props[key];
     }
   })
+}
 
-  // 使用递归实现 render
-  const children = element.props.children;
-  if (children instanceof Array && children.length > 0) {
-    children.forEach((child) => {
-      render(child, domElement);
-    })
+const handleWorkOfUnit = (work) => {
+  if (!work.dom) {
+    const domElement = work.dom = createDom(work.type);
+    updateProps(domElement, work);
+    if (work.parent) {
+      work.parent?.dom.append(domElement);
+    }
   }
 
-  container.append(domElement);
+  const children = work.props.children;
+  let prevChild = null;
+  if (children) {
+    children.forEach((child, index) => {
+      const newWork = {
+        type: child.type,
+        props: child.props,
+        dom: null,
+        parent: work,
+        child: null,
+        sibling: null,
+      }
+
+      if (index === 0) {
+        work.child = newWork;
+      } else {
+        prevChild.sibling = newWork;
+      }
+      prevChild = newWork;
+    });
+  }
+
+  if (work.child) {
+    return work.child;
+  }
+
+  if (work.sibling) {
+    return work.sibling;
+  }
+
+  let parent = work.parent;
+  return parent?.sibling;
+
+  // while (true) {
+  //   if (!parent) {
+  //     return null;
+  //   }
+  //   if (parent?.sibling) {
+  //     return parent?.sibling;
+  //   } else {
+  //     parent = parent?.parent;
+  //   }
+  // }
+}
+
+let nextWorkOfUnit = null;
+const workLoop = (IdleDeadline) => {
+  let shouldYield = false;
+  while (nextWorkOfUnit && !shouldYield) {
+    nextWorkOfUnit = handleWorkOfUnit(nextWorkOfUnit);
+    shouldYield = IdleDeadline.timeRemaining() < 1;
+  }
+  requestIdleCallback(workLoop);
+}
+requestIdleCallback(workLoop);
+
+function render(element, container) {
+  nextWorkOfUnit = {
+    type: 'div',
+    props: {
+      children: [element]
+    },
+    dom: container,
+    parent: null,
+    child: null,
+    sibling: null,
+  }
 }
 
 const React = {
