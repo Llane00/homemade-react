@@ -91,6 +91,18 @@ const handleWorkOfUnit = (fiber) => {
   return getNextWorkOfUnit(fiber);
 }
 
+const commitRoot = (rootFiber) => {
+  commitWork(rootFiber.child)
+}
+
+const commitWork = (fiber) => {
+  if (!fiber) return;
+
+  fiber?.parent?.dom.append(fiber.dom);
+  commitWork(fiber.child);
+  commitWork(fiber.sibling);
+}
+
 let rootFiber = null;
 let nextWorkOfUnit = null;
 const workLoop = (IdleDeadline) => {
@@ -121,20 +133,6 @@ function render(element, container) {
     child: null,
     sibling: null,
   }
-}
-
-const commitRoot = (rootFiber) => {
-  commitWork(rootFiber.child)
-}
-
-const commitWork = (fiber) => {
-  if (!fiber) {
-    return;
-  }
-
-  fiber?.parent?.dom.append(fiber.dom);
-  commitWork(fiber.child);
-  commitWork(fiber.sibling);
 }
 
 const React = {
