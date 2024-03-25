@@ -34,7 +34,7 @@ const updateProps = (domElement, vdom) => {
   })
 }
 
-const handleChildrenRelationship = (fiber) => {
+const initChildrenFibers = (fiber) => {
   const children = fiber.props.children;
   let prevChild = null;
   if (children) {
@@ -84,16 +84,14 @@ const handleWorkOfUnit = (fiber) => {
   if (!fiber.dom) {
     const domElement = fiber.dom = createDom(fiber.type);
     updateProps(domElement, fiber);
-    if (fiber.parent) {
-      fiber.parent?.dom.append(domElement);
-    }
   }
 
-  handleChildrenRelationship(fiber);
+  initChildrenFibers(fiber);
 
   return getNextWorkOfUnit(fiber);
 }
 
+let rootFiber = null;
 let nextWorkOfUnit = null;
 const workLoop = (IdleDeadline) => {
   let shouldYield = false;
@@ -101,12 +99,19 @@ const workLoop = (IdleDeadline) => {
     nextWorkOfUnit = handleWorkOfUnit(nextWorkOfUnit);
     shouldYield = IdleDeadline.timeRemaining() < 1;
   }
+
+  // fiber节点树处理完成, 统一渲染到dom树
+  if (!nextWorkOfUnit && rootFiber) {
+    commitRoot(rootFiber);
+    rootFiber = null;
+  }
+
   requestIdleCallback(workLoop);
 }
 requestIdleCallback(workLoop);
 
 function render(element, container) {
-  nextWorkOfUnit = {
+  rootFiber = nextWorkOfUnit = {
     type: 'div',
     props: {
       children: [element]
@@ -116,6 +121,20 @@ function render(element, container) {
     child: null,
     sibling: null,
   }
+}
+
+const commitRoot = (rootFiber) => {
+  commitWork(rootFiber.child)
+}
+
+const commitWork = (fiber) => {
+  if (!fiber) {
+    return;
+  }
+
+  fiber?.parent?.dom.append(fiber.dom);
+  commitWork(fiber.child);
+  commitWork(fiber.sibling);
 }
 
 const React = {
