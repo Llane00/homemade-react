@@ -63,35 +63,40 @@ const getNextWorkOfUnit = (fiber) => {
     return fiber.child;
   }
 
-  if (fiber.sibling) {
-    return fiber.sibling;
+  let nextFiber = fiber;
+  while (nextFiber) {
+    if (nextFiber.sibling) {
+      return nextFiber.sibling;
+    }
+    nextFiber = nextFiber.parent;
   }
 
-  let parent = fiber.parent;
-  while (true) {
-    if (!parent) {
-      return null;
-    }
-    if (parent?.sibling) {
-      return parent.sibling;
-    } else {
-      parent = parent?.parent;
-    }
+  return null;
+}
+
+const updateFunctionComponent = (fiber) => {
+  const children = [fiber.type(fiber.props)];
+  initChildrenFibers(fiber, children);
+}
+
+const updateNormalComponent = (fiber) => {
+  if (!fiber.dom) {
+    const domElement = fiber.dom = createDom(fiber.type);
+    updateProps(domElement, fiber);
   }
+
+  const children = fiber.props.children;
+  initChildrenFibers(fiber, children);
 }
 
 const handleWorkOfUnit = (fiber) => {
   const isFunctionComponent = typeof fiber.type === 'function';
 
-  if (!isFunctionComponent) {
-    if (!fiber.dom) {
-      const domElement = fiber.dom = createDom(fiber.type);
-      updateProps(domElement, fiber);
-    }
+  if (isFunctionComponent) {
+    updateFunctionComponent(fiber);
+  } else {
+    updateNormalComponent(fiber);
   }
-
-  const children = isFunctionComponent ? [fiber.type(fiber.props)] : fiber.props.children;
-  initChildrenFibers(fiber, children);
 
   return getNextWorkOfUnit(fiber);
 }
