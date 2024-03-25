@@ -1,4 +1,4 @@
-import React from "./core/React";
+import React from "./core/react";
 
 const FunctionComponent1 = ({ num }) => (
   <p>
