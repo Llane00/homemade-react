@@ -1,5 +1,3 @@
-import { rIC } from '../lib/utils.js';
-
 function createTextNode(text) {
   return {
     type: "TEXT_ELEMENT",
@@ -137,9 +135,8 @@ const workLoop = (IdleDeadline) => {
     rootFiber = null;
   }
 
-  rIC(workLoop);
+  requestIdleCallback(workLoop);
 }
-rIC(workLoop);
 
 function render(element, container) {
   rootFiber = nextWorkOfUnit = {
@@ -152,6 +149,8 @@ function render(element, container) {
     child: null,
     sibling: null,
   }
+
+  requestIdleCallback(workLoop);
 }
 
 const React = {
