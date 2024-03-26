@@ -1,3 +1,7 @@
+import pollify from '../lib/utils.js';
+
+const { rIC } = pollify;
+
 function createTextNode(text) {
   return {
     type: "TEXT_ELEMENT",
@@ -135,9 +139,9 @@ const workLoop = (IdleDeadline) => {
     rootFiber = null;
   }
 
-  requestIdleCallback(workLoop);
+  rIC(workLoop);
 }
-requestIdleCallback(workLoop);
+rIC(workLoop);
 
 function render(element, container) {
   rootFiber = nextWorkOfUnit = {
