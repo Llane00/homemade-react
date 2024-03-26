@@ -89,7 +89,7 @@ const updateNormalComponent = (fiber) => {
   initChildrenFibers(fiber, children);
 }
 
-const handleWorkOfUnit = (fiber) => {
+const performWorkOfUnit = (fiber) => {
   const isFunctionComponent = typeof fiber.type === 'function';
 
   if (isFunctionComponent) {
@@ -125,7 +125,7 @@ let nextWorkOfUnit = null;
 const workLoop = (IdleDeadline) => {
   let shouldYield = false;
   while (nextWorkOfUnit && !shouldYield) {
-    nextWorkOfUnit = handleWorkOfUnit(nextWorkOfUnit);
+    nextWorkOfUnit = performWorkOfUnit(nextWorkOfUnit);
     shouldYield = IdleDeadline.timeRemaining() < 1;
   }
 
