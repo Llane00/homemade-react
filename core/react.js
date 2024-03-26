@@ -1,6 +1,4 @@
-import pollify from '../lib/utils.js';
-
-const { rIC } = pollify;
+import { rIC } from '../lib/utils.js';
 
 function createTextNode(text) {
   return {
