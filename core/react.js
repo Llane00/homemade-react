@@ -1,3 +1,6 @@
+let rootFiber = null;
+let nextWorkOfUnit = null;
+
 function createTextNode(text) {
   return {
     type: "TEXT_ELEMENT",
@@ -21,13 +24,13 @@ function createElement(type, props, ...children) {
   }
 }
 
-const createDom = (type) => {
+function createDom(type) {
   return type === "TEXT_ELEMENT"
     ? document.createTextNode("")
     : document.createElement(type);
 }
 
-const updateProps = (domElement, vdom) => {
+function updateProps(domElement, vdom) {
   Object.keys(vdom.props).forEach((key) => {
     if (key !== "children") {
       domElement[key] = vdom.props[key];
@@ -35,7 +38,7 @@ const updateProps = (domElement, vdom) => {
   })
 }
 
-const initChildrenFibers = (fiber, children) => {
+function initChildrenFibers(fiber, children) {
   let prevChild = null;
   if (children) {
     children.forEach((child, index) => {
@@ -58,7 +61,7 @@ const initChildrenFibers = (fiber, children) => {
   }
 }
 
-const getNextWorkOfUnit = (fiber) => {
+function getNextWorkOfUnit(fiber) {
   if (fiber.child) {
     return fiber.child;
   }
@@ -74,12 +77,12 @@ const getNextWorkOfUnit = (fiber) => {
   return null;
 }
 
-const updateFunctionComponent = (fiber) => {
+function updateFunctionComponent(fiber) {
   const children = [fiber.type(fiber.props)];
   initChildrenFibers(fiber, children);
 }
 
-const updateNormalComponent = (fiber) => {
+function updateNormalComponent(fiber) {
   if (!fiber.dom) {
     const domElement = fiber.dom = createDom(fiber.type);
     updateProps(domElement, fiber);
@@ -89,7 +92,7 @@ const updateNormalComponent = (fiber) => {
   initChildrenFibers(fiber, children);
 }
 
-const performWorkOfUnit = (fiber) => {
+function performWorkOfUnit(fiber) {
   const isFunctionComponent = typeof fiber.type === 'function';
 
   if (isFunctionComponent) {
@@ -101,11 +104,11 @@ const performWorkOfUnit = (fiber) => {
   return getNextWorkOfUnit(fiber);
 }
 
-const commitRoot = (rootFiber) => {
+function commitRoot(rootFiber) {
   commitWork(rootFiber.child)
 }
 
-const commitWork = (fiber) => {
+function commitWork(fiber) {
   if (!fiber) return;
 
   let fiberParent = fiber.parent;
@@ -120,9 +123,7 @@ const commitWork = (fiber) => {
   commitWork(fiber.sibling);
 }
 
-let rootFiber = null;
-let nextWorkOfUnit = null;
-const workLoop = (IdleDeadline) => {
+function workLoop(IdleDeadline) {
   let shouldYield = false;
   while (nextWorkOfUnit && !shouldYield) {
     nextWorkOfUnit = performWorkOfUnit(nextWorkOfUnit);
