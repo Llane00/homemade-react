@@ -1,4 +1,4 @@
-let rootFiber = null;
+let workInProcessRootFiber = null;
 let currentRootFiber = null;
 let nextWorkOfUnit = null;
 
@@ -55,7 +55,7 @@ function updateProps(domElement, nextProps, prevProps = {}) {
   }
 }
 
-function initChildrenFibers(parentFiber, children) {
+function reconcileChildrenFibers(parentFiber, children) {
   const oldParentFiber = parentFiber.alternate;
   let currentOldFiberChild = oldParentFiber?.child;
   let prevChild = null;
@@ -104,7 +104,7 @@ function getNextWorkOfUnit(fiber) {
 
 function updateFunctionComponent(fiber) {
   const children = [fiber.type(fiber.props)];
-  initChildrenFibers(fiber, children);
+  reconcileChildrenFibers(fiber, children);
 }
 
 function updateNormalComponent(fiber) {
@@ -113,7 +113,7 @@ function updateNormalComponent(fiber) {
     updateProps(domElement, fiber?.props);
   }
   const children = fiber?.props?.children;
-  initChildrenFibers(fiber, children);
+  reconcileChildrenFibers(fiber, children);
 }
 
 function performWorkOfUnit(fiber) {
@@ -129,9 +129,9 @@ function performWorkOfUnit(fiber) {
 }
 
 function commitRoot() {
-  commitWork(rootFiber.child)
-  currentRootFiber = rootFiber;
-  rootFiber = null;
+  commitWork(workInProcessRootFiber.child)
+  currentRootFiber = workInProcessRootFiber;
+  workInProcessRootFiber = null;
 }
 
 function commitWork(fiber) {
@@ -167,7 +167,7 @@ function workLoop(IdleDeadline) {
   }
 
   // fiber节点树处理完成, 统一渲染到dom树
-  if (!nextWorkOfUnit && rootFiber) {
+  if (!nextWorkOfUnit && workInProcessRootFiber) {
     commitRoot();
   }
 
@@ -175,24 +175,24 @@ function workLoop(IdleDeadline) {
 }
 
 function render(element, container) {
-  rootFiber = nextWorkOfUnit = {
+  workInProcessRootFiber = {
     props: {
       children: [element]
     },
     dom: container,
   }
+  nextWorkOfUnit = workInProcessRootFiber;
 
   requestIdleCallback(workLoop);
 }
 
 function update() {
-  nextWorkOfUnit = {
+  workInProcessRootFiber = {
     props: currentRootFiber.props,
     dom: currentRootFiber.dom,
     alternate: currentRootFiber,
   }
-
-  rootFiber = nextWorkOfUnit;
+  nextWorkOfUnit = workInProcessRootFiber;
 }
 
 const React = {
