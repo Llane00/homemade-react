@@ -14,14 +14,19 @@ function FunctionComponent2({ num }) {
   )
 }
 
-function Count() {
+let countNum = 0;
+let countProps = { className: 'red' };
+function Counter() {
   function handleClick(e) {
+    React.update();
+    countNum++;
+    countProps.className = countNum % 2 === 0 ? 'red' : 'blue';
     console.log('handle click', e)
   }
 
   return (
-    <button onClick={handleClick}>
-      Click Me
+    <button {...countProps} onClick={handleClick}>
+      Click Me {countNum}
     </button>
   )
 }
@@ -29,7 +34,7 @@ function Count() {
 const App = <div>
   Hi React!
   <div>
-    <Count />
+    <Counter />
   </div>
   <div>
     <div>
