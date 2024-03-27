@@ -31,23 +31,27 @@ function Counter() {
   )
 }
 
-const App = <div>
-  Hi React!
-  <div>
-    <Counter />
-  </div>
-  <div>
+const App = () => {
+  return (
     <div>
-      <FunctionComponent1 num={1} />
-    </div>
-  </div>
-  <div>
-    <div>
+      Hi React!
       <div>
-        <FunctionComponent2 num={2} />
+        <Counter />
+      </div>
+      <div>
+        <div>
+          <FunctionComponent1 num={1} />
+        </div>
+      </div>
+      <div>
+        <div>
+          <div>
+            <FunctionComponent2 num={2} />
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-</div>
+  );
+}
 
 export default App;

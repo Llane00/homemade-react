@@ -175,6 +175,10 @@ function workLoop(IdleDeadline) {
 }
 
 function render(element, container) {
+  if (typeof element === 'function') {
+    element = element();
+  };
+
   workInProcessRootFiber = {
     props: {
       children: [element]
