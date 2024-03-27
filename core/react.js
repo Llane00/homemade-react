@@ -31,11 +31,16 @@ function createDom(type) {
 }
 
 function updateProps(domElement, vdom) {
-  Object.keys(vdom.props).forEach((key) => {
-    if (key !== "children") {
+  for (const key in vdom.props) {
+    if (key === "children") continue;
+  
+    if (key.startsWith("on")) {
+      const eventName = key.slice(2).toLowerCase();
+      domElement.addEventListener(eventName, vdom.props[key]);
+    } else {
       domElement[key] = vdom.props[key];
     }
-  })
+  }
 }
 
 function initChildrenFibers(fiber, children) {

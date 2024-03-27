@@ -14,8 +14,23 @@ function FunctionComponent2({ num }) {
   )
 }
 
+function Count() {
+  function handleClick(e) {
+    console.log('handle click', e)
+  }
+
+  return (
+    <button onClick={handleClick}>
+      Click Me
+    </button>
+  )
+}
+
 const App = <div>
   Hi React!
+  <div>
+    <Count />
+  </div>
   <div>
     <div>
       <FunctionComponent1 num={1} />
