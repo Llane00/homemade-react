@@ -1,4 +1,5 @@
 let rootFiber = null;
+let currentRootFiber = null;
 let nextWorkOfUnit = null;
 
 function createTextNode(text) {
@@ -30,40 +31,59 @@ function createDom(type) {
     : document.createElement(type);
 }
 
-function updateProps(domElement, vdom) {
-  for (const key in vdom.props) {
+function updateProps(domElement, nextProps, prevProps = {}) {
+  // 旧fiber有props ，新fiber没有props 需删除
+  for (const key in prevProps) {
     if (key === "children") continue;
-  
+    if (!(key in nextProps)) {
+      domElement.removeAttribute(key);
+    }
+  }
+
+  // 新fiber有props ，需新增和更新
+  for (const key in nextProps) {
+    if (key === "children") continue;
+    if (prevProps[key] === nextProps[key]) continue;
+
     if (key.startsWith("on")) {
       const eventName = key.slice(2).toLowerCase();
-      domElement.addEventListener(eventName, vdom.props[key]);
+      domElement.removeEventListener(eventName, prevProps[key]);
+      domElement.addEventListener(eventName, nextProps[key]);
     } else {
-      domElement[key] = vdom.props[key];
+      domElement[key] = nextProps[key];
     }
   }
 }
 
-function initChildrenFibers(fiber, children) {
+function initChildrenFibers(parentFiber, children) {
+  const oldParentFiber = parentFiber.alternate;
+  let currentOldFiberChild = oldParentFiber?.child;
   let prevChild = null;
-  if (children) {
-    children.forEach((child, index) => {
-      const newFiber = {
-        type: child.type,
-        props: child.props,
-        dom: null,
-        parent: fiber,
-        child: null,
-        sibling: null,
-      }
+  children?.forEach((child, index) => {
+    const isTheSameType = currentOldFiberChild && (child?.type === currentOldFiberChild?.type);
 
-      if (index === 0) {
-        fiber.child = newFiber;
-      } else {
-        prevChild.sibling = newFiber;
-      }
-      prevChild = newFiber;
-    });
-  }
+    const newFiber = {
+      type: child.type,
+      props: child.props,
+      dom: isTheSameType ? currentOldFiberChild.dom : null,
+      alternate: isTheSameType ? currentOldFiberChild : null,
+      parent: parentFiber,
+      child: null,
+      sibling: null,
+      effectTag: isTheSameType ? 'update' : 'placement',
+    }
+
+    if (currentOldFiberChild) {
+      currentOldFiberChild = currentOldFiberChild?.sibling;
+    }
+
+    if (index === 0) {
+      parentFiber.child = newFiber;
+    } else {
+      prevChild.sibling = newFiber;
+    }
+    prevChild = newFiber;
+  });
 }
 
 function getNextWorkOfUnit(fiber) {
@@ -90,10 +110,9 @@ function updateFunctionComponent(fiber) {
 function updateNormalComponent(fiber) {
   if (!fiber.dom) {
     const domElement = fiber.dom = createDom(fiber.type);
-    updateProps(domElement, fiber);
+    updateProps(domElement, fiber?.props);
   }
-
-  const children = fiber.props.children;
+  const children = fiber?.props?.children;
   initChildrenFibers(fiber, children);
 }
 
@@ -109,21 +128,33 @@ function performWorkOfUnit(fiber) {
   return getNextWorkOfUnit(fiber);
 }
 
-function commitRoot(rootFiber) {
+function commitRoot() {
   commitWork(rootFiber.child)
+  currentRootFiber = rootFiber;
+  rootFiber = null;
 }
 
 function commitWork(fiber) {
   if (!fiber) return;
 
-  let fiberParent = fiber.parent;
-  while (!fiberParent.dom) {
-    fiberParent = fiberParent?.parent;
+  // placement 新增节点时
+  if (fiber.effectTag === 'placement' && fiber.dom) {
+
+    let fiberParent = fiber.parent;
+    while (!fiberParent.dom) {
+      fiberParent = fiberParent?.parent;
+    }
+
+    if (fiber.dom) {
+      fiberParent.dom.append(fiber.dom);
+    }
   }
 
-  if (fiber.dom) {
-    fiberParent.dom.appendChild(fiber.dom);
+  // update 更新节点时
+  if (fiber.effectTag === 'update' && fiber.dom) {
+    updateProps(fiber.dom, fiber.props, fiber.alternate.props);
   }
+
   commitWork(fiber.child);
   commitWork(fiber.sibling);
 }
@@ -137,8 +168,7 @@ function workLoop(IdleDeadline) {
 
   // fiber节点树处理完成, 统一渲染到dom树
   if (!nextWorkOfUnit && rootFiber) {
-    commitRoot(rootFiber);
-    rootFiber = null;
+    commitRoot();
   }
 
   requestIdleCallback(workLoop);
@@ -146,22 +176,29 @@ function workLoop(IdleDeadline) {
 
 function render(element, container) {
   rootFiber = nextWorkOfUnit = {
-    type: 'div',
     props: {
       children: [element]
     },
     dom: container,
-    parent: null,
-    child: null,
-    sibling: null,
   }
 
   requestIdleCallback(workLoop);
 }
 
+function update() {
+  nextWorkOfUnit = {
+    props: currentRootFiber.props,
+    dom: currentRootFiber.dom,
+    alternate: currentRootFiber,
+  }
+
+  rootFiber = nextWorkOfUnit;
+}
+
 const React = {
   createElement,
-  render
+  render,
+  update,
 }
 
 export default React;
