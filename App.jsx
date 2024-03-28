@@ -37,29 +37,29 @@ function Counter() {
   )
 }
 
-let displayComponentA = true;
-const ToggleComponent = () => {
-  const ComponentA = <div>Component A</div>;
-  function FnComponentA() {
-    return <div>Fn Component A</div>;
-  }
+let showBar = false;
+function ToggleComponent() {
+  const foo = (
+    <div>
+      foo
+      <p>foo 's child1</p>
+      <p>foo 's child2</p>
+      <p>foo 's child3</p>
+    </div>
+  );
 
-  const ComponentB = <p>Component B</p>;
-  function FnComponentB() {
-    return <div>Fn Component B</div>;
-  }
+  const bar = <div>bar</div>
 
-  function handleClick() {
-    displayComponentA = !displayComponentA;
+  function handleShowBar() {
+    showBar = !showBar;
     React.update();
   }
 
   return (
     <div>
-      display Component:
-      <div>{displayComponentA ? <FnComponentA /> : <FnComponentB />}</div>
-      <div>{displayComponentA ? ComponentA : ComponentB}</div>
-      <button onClick={handleClick}>toggle A or B</button>
+      <button onClick={handleShowBar}>showBar</button>
+      <div>{showBar ? bar : foo}</div>
+      {showBar && bar}
     </div>
   )
 }
@@ -82,11 +82,11 @@ const App = () => {
 
   return (
     <div>
-      Hi React!
-      <div id="displayContainer1">
+      {/* Hi React! */}
+      {/* <div id="displayContainer1"> */}
         <ToggleComponent />
-      </div>
-      <AddDivButton />
+      {/* </div> */}
+      {/* <AddDivButton />
       <div>
         <div>
           <FunctionComponent1 num={1} />
@@ -101,7 +101,7 @@ const App = () => {
       </div>
       <div>
         <Counter />
-      </div>
+      </div> */}
     </div>
   );
 }

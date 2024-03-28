@@ -89,6 +89,12 @@ function reconcileChildrenFibers(parentFiber, children) {
     }
     prevChild = newFiber;
   });
+
+  // 如果oldFiber有多余的sibling节点，需要删除
+  while (currentOldFiberChild) {
+    fibersNeedDelete.push(currentOldFiberChild);
+    currentOldFiberChild = currentOldFiberChild?.sibling;
+  }
 }
 
 function getNextWorkOfUnit(fiber) {
