@@ -39,11 +39,15 @@ function Counter() {
 
 let displayComponentA = true;
 const ToggleComponent = () => {
-  // const ComponentA = <div>Component A</div>;
-  function ComponentA() {
-    return <div>Component A</div>;
+  const ComponentA = <div>Component A</div>;
+  function FnComponentA() {
+    return <div>Fn Component A</div>;
   }
+
   const ComponentB = <p>Component B</p>;
+  function FnComponentB() {
+    return <div>Fn Component B</div>;
+  }
 
   function handleClick() {
     displayComponentA = !displayComponentA;
@@ -53,7 +57,8 @@ const ToggleComponent = () => {
   return (
     <div>
       display Component:
-      <div>{displayComponentA ? <ComponentA /> : ComponentB}</div>
+      <div>{displayComponentA ? <FnComponentA /> : <FnComponentB />}</div>
+      <div>{displayComponentA ? ComponentA : ComponentB}</div>
       <button onClick={handleClick}>toggle A or B</button>
     </div>
   )
