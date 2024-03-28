@@ -63,15 +63,18 @@ function reconcileChildrenFibers(parentFiber, children) {
   children?.forEach((child, index) => {
     const isTheSameType = currentOldFiberChild && (child?.type === currentOldFiberChild?.type);
 
-    const newFiber = {
-      type: child.type,
-      props: child.props,
-      dom: isTheSameType ? currentOldFiberChild.dom : null,
-      alternate: isTheSameType ? currentOldFiberChild : null,
-      parent: parentFiber,
-      child: null,
-      sibling: null,
-      effectTag: isTheSameType ? 'update' : 'placement',
+    let newFiber;
+    if (!!child) {
+      newFiber = {
+        type: child.type,
+        props: child.props,
+        dom: isTheSameType ? currentOldFiberChild.dom : null,
+        alternate: isTheSameType ? currentOldFiberChild : null,
+        parent: parentFiber,
+        child: null,
+        sibling: null,
+        effectTag: isTheSameType ? 'update' : 'placement',
+      }
     }
 
     if (!isTheSameType && currentOldFiberChild) {
@@ -87,7 +90,10 @@ function reconcileChildrenFibers(parentFiber, children) {
     } else {
       prevChild.sibling = newFiber;
     }
-    prevChild = newFiber;
+
+    if (newFiber) {
+      prevChild = newFiber;
+    }
   });
 
   // 如果oldFiber有多余的sibling节点，需要删除
