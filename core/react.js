@@ -1,4 +1,5 @@
 let workInProcessRootFiber = null;
+let workInProcessFiber = null;
 let currentRootFiber = null;
 let nextWorkOfUnit = null;
 let fibersNeedDelete = [];
@@ -120,6 +121,7 @@ function getNextWorkOfUnit(fiber) {
 }
 
 function updateFunctionComponent(fiber) {
+  workInProcessFiber = fiber;
   const children = [fiber.type(fiber.props)];
   reconcileChildrenFibers(fiber, children);
 }
@@ -228,12 +230,16 @@ function render(element, container) {
 }
 
 function update() {
-  workInProcessRootFiber = {
-    props: currentRootFiber.props,
-    dom: currentRootFiber.dom,
-    alternate: currentRootFiber,
+  let currentFiber = workInProcessFiber;
+  return () => {
+    console.log(1, currentFiber)
+    workInProcessRootFiber = {
+      props: currentRootFiber.props,
+      dom: currentRootFiber.dom,
+      alternate: currentRootFiber,
+    }
+    nextWorkOfUnit = workInProcessRootFiber;
   }
-  nextWorkOfUnit = workInProcessRootFiber;
 }
 
 const React = {

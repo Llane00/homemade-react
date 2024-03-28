@@ -23,10 +23,11 @@ let countProps = { className: 'red' };
 function Counter() {
   console.log('render Counter');
 
+  const update = React.update();
   function handleClick(e) {
-    React.update();
     countNum++;
     countProps.className = countNum % 2 === 0 ? 'red' : 'blue';
+    update();
     console.log('handle Counter click', e)
   }
 
@@ -39,6 +40,8 @@ function Counter() {
 
 let showBar = false;
 function ToggleComponent() {
+  console.log('render ToggleComponent');
+
   const foo = (
     <div>
       foo
@@ -50,9 +53,10 @@ function ToggleComponent() {
 
   const bar = <div>bar</div>
 
+  const update = React.update();
   function handleShowBar() {
     showBar = !showBar;
-    React.update();
+    update();
   }
 
   return (
@@ -65,6 +69,8 @@ function ToggleComponent() {
 }
 
 const AddDivButton = () => {
+  console.log('render AddDivButton');
+
   function addDiv() {
     const containerDom = document.querySelector("#displayContainer1");
     const div = document.createElement("div");
@@ -82,11 +88,11 @@ const App = () => {
 
   return (
     <div>
-      {/* Hi React! */}
-      {/* <div id="displayContainer1"> */}
+      Hi React!
+      <div id="displayContainer1">
         <ToggleComponent />
-      {/* </div> */}
-      {/* <AddDivButton />
+      </div>
+      <AddDivButton />
       <div>
         <div>
           <FunctionComponent1 num={1} />
@@ -101,7 +107,7 @@ const App = () => {
       </div>
       <div>
         <Counter />
-      </div> */}
+      </div>
     </div>
   );
 }
