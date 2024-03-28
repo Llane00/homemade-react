@@ -1,12 +1,16 @@
 import React from "./core/react";
 
-const FunctionComponent1 = ({ num }) => (
-  <p>
+const FunctionComponent1 = ({ num }) => {
+  console.log('render FunctionComponent1');
+
+  return (<p>
     FunctionComponent {num}
-  </p>
-)
+  </p>);
+}
 
 function FunctionComponent2({ num }) {
+  console.log('render FunctionComponent2');
+
   return (
     <div>
       FunctionComponent <span>{num}</span>
@@ -17,11 +21,13 @@ function FunctionComponent2({ num }) {
 let countNum = 0;
 let countProps = { className: 'red' };
 function Counter() {
+  console.log('render Counter');
+
   function handleClick(e) {
     React.update();
     countNum++;
     countProps.className = countNum % 2 === 0 ? 'red' : 'blue';
-    console.log('handle click', e)
+    console.log('handle Counter click', e)
   }
 
   return (
@@ -31,13 +37,51 @@ function Counter() {
   )
 }
 
+let displayComponentA = true;
+const ToggleComponent = () => {
+  // const ComponentA = <div>Component A</div>;
+  function ComponentA() {
+    return <div>Component A</div>;
+  }
+  const ComponentB = <p>Component B</p>;
+
+  function handleClick() {
+    displayComponentA = !displayComponentA;
+    React.update();
+  }
+
+  return (
+    <div>
+      display Component:
+      <div>{displayComponentA ? <ComponentA /> : ComponentB}</div>
+      <button onClick={handleClick}>toggle A or B</button>
+    </div>
+  )
+}
+
+const AddDivButton = () => {
+  function addDiv() {
+    const containerDom = document.querySelector("#displayContainer1");
+    const div = document.createElement("div");
+    div.innerHTML = "add div";
+    containerDom.appendChild(div);
+  }
+
+  return (
+    <button onClick={addDiv}>add div</button>
+  )
+}
+
 const App = () => {
+  console.log('render App');
+
   return (
     <div>
       Hi React!
-      <div>
-        <Counter />
+      <div id="displayContainer1">
+        <ToggleComponent />
       </div>
+      <AddDivButton />
       <div>
         <div>
           <FunctionComponent1 num={1} />
@@ -49,6 +93,9 @@ const App = () => {
             <FunctionComponent2 num={2} />
           </div>
         </div>
+      </div>
+      <div>
+        <Counter />
       </div>
     </div>
   );

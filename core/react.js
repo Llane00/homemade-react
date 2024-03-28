@@ -1,6 +1,7 @@
 let workInProcessRootFiber = null;
 let currentRootFiber = null;
 let nextWorkOfUnit = null;
+let fibersNeedDelete = [];
 
 function createTextNode(text) {
   return {
@@ -73,6 +74,10 @@ function reconcileChildrenFibers(parentFiber, children) {
       effectTag: isTheSameType ? 'update' : 'placement',
     }
 
+    if (!isTheSameType && currentOldFiberChild) {
+      fibersNeedDelete.push(currentOldFiberChild);
+    }
+
     if (currentOldFiberChild) {
       currentOldFiberChild = currentOldFiberChild?.sibling;
     }
@@ -128,10 +133,34 @@ function performWorkOfUnit(fiber) {
   return getNextWorkOfUnit(fiber);
 }
 
+function deleteFiber(fiber) {
+  if (fiber?.dom) {
+    const fiberParent = getFiberParentWithDom(fiber);
+    fiberParent?.dom?.removeChild(fiber?.dom);
+  } else {
+    deleteFiber(fiber.child);
+  }
+};
+
+function handleFibersNeedDelete() {
+  fibersNeedDelete.map((fiber) => deleteFiber(fiber));
+  fibersNeedDelete = [];
+}
+
 function commitRoot() {
+  handleFibersNeedDelete();
+
   commitWork(workInProcessRootFiber.child)
   currentRootFiber = workInProcessRootFiber;
   workInProcessRootFiber = null;
+}
+
+function getFiberParentWithDom(fiber) {
+  let fiberParent = fiber.parent;
+  while (!fiberParent.dom) {
+    fiberParent = fiberParent?.parent;
+  }
+  return fiberParent;
 }
 
 function commitWork(fiber) {
@@ -140,11 +169,7 @@ function commitWork(fiber) {
   // placement 新增节点时
   if (fiber.effectTag === 'placement' && fiber.dom) {
 
-    let fiberParent = fiber.parent;
-    while (!fiberParent.dom) {
-      fiberParent = fiberParent?.parent;
-    }
-
+    const fiberParent = getFiberParentWithDom(fiber);
     if (fiber.dom) {
       fiberParent.dom.append(fiber.dom);
     }
