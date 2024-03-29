@@ -257,7 +257,13 @@ function useState(initValue) {
   const oldHook = currentFiber?.alternate?.stateHooks[stateHookIndex];
   const stateHook = {
     state: oldHook ? oldHook.state : initValue,
+    actionQueue: oldHook ? oldHook.actionQueue : []
   }
+
+  stateHook.actionQueue.forEach((action) => {
+    stateHook.state = action(stateHook.state);
+  })
+  stateHook.actionQueue = [];
 
   stateHooks.push(stateHook);
   stateHookIndex++;
@@ -266,7 +272,7 @@ function useState(initValue) {
 
   let setState = (action) => {
     action = typeof action === 'function' ? action : () => action;
-    stateHook.state = action(stateHook.state);
+    stateHook.actionQueue.push(action);
 
     workInProcessRootFiber = {
       ...currentFiber,
