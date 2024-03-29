@@ -18,29 +18,33 @@ function FunctionComponent2({ num }) {
   )
 }
 
-// let countProps = { id: 'Counter', className: 'red' };
 function Counter() {
   console.log('render Counter');
 
-  const [count, setCount] = React.useState(10);
+  const [count, setCount] = React.useState(1);
+  const [countProps, setCountProps] = React.useState({ id: 'Counter', className: 'red' });
 
   function handleClick(e) {
-    setCount((count) => count+1);
-    // countProps.className = countNum % 2 === 0 ? 'red' : 'blue';
+    setCount((count) => count + 1);
+    setCountProps((countProps) => countProps.className === 'red' ? { id: 'Counter', className: 'blue' } : { id: 'Counter', className: 'red' });
     console.log('handle Counter click', count, e)
   }
 
   return (
-    // <button {...countProps} onClick={handleClick}>
-    <button onClick={handleClick}>
-      Click Me {count}
-    </button>
+    <div>
+      <div>{count}</div>
+      <div>{countProps.className}</div>
+      <button {...countProps} onClick={handleClick}>
+        Click Me
+      </button>
+      {/* <ToggleComponent /> */}
+    </div>
   )
 }
 
-let showBar = false;
 function ToggleComponent() {
   console.log('render ToggleComponent');
+  const [displayBar, setDisplayBar] = React.useState(false);
 
   const foo = (
     <div>
@@ -53,18 +57,15 @@ function ToggleComponent() {
 
   const bar = <div>bar</div>
 
-  const update = React.update();
   function handleShowBar() {
-    showBar = !showBar;
-    update();
+    setDisplayBar((displayBar) => !displayBar);
+    console.log('handleShowBar', displayBar);
   }
 
   return (
     <div id="ToggleComponent">
-      <div>{showBar ? bar : foo}</div>
-      <div>p1</div>
-      {showBar && bar}
-      <div>p2</div>
+      <div>{displayBar ? bar : foo}</div>
+      {displayBar && bar}
       <button onClick={handleShowBar}>showBar</button>
     </div>
   )
@@ -75,7 +76,7 @@ const App = () => {
 
   return (
     <div>
-      Hi React!
+      <div>Hi React!</div>
       <ToggleComponent />
       <div>
         <div>

@@ -2,6 +2,8 @@ let workInProcessRootFiber = null;
 let workInProcessFiber = null;
 let nextWorkOfUnit = null;
 let fibersNeedDelete = [];
+let stateHooks;
+let stateHookIndex;
 
 function createTextNode(text) {
   return {
@@ -120,8 +122,12 @@ function getNextWorkOfUnit(fiber) {
 }
 
 function updateFunctionComponent(fiber) {
+  stateHooks = [];
+  stateHookIndex = 0;
   workInProcessFiber = fiber;
+
   const children = [fiber.type(fiber.props)];
+
   reconcileChildrenFibers(fiber, children);
 }
 
@@ -248,13 +254,18 @@ function update() {
 
 function useState(initValue) {
   let currentFiber = workInProcessFiber;
-  const oldHook = currentFiber?.alternate?.stateHook;
+  const oldHook = currentFiber?.alternate?.stateHooks[stateHookIndex];
   const stateHook = {
     state: oldHook ? oldHook.state : initValue,
   }
-  currentFiber.stateHook = stateHook;
+
+  stateHooks.push(stateHook);
+  stateHookIndex++;
+
+  currentFiber.stateHooks = stateHooks;
 
   let setState = (action) => {
+    action = typeof action === 'function' ? action : () => action;
     stateHook.state = action(stateHook.state);
 
     workInProcessRootFiber = {
