@@ -208,7 +208,10 @@ function workLoop(IdleDeadline) {
     nextWorkOfUnit = performWorkOfUnit(nextWorkOfUnit);
 
     // 如果下一个work的fiber节点是 当前update的节点的兄弟节点，说明当前update的节点已经处理完成
-    if (workInProcessRootFiber?.sibling?.type === nextWorkOfUnit?.type) {
+    if (!!nextWorkOfUnit?.type
+      && workInProcessRootFiber?.sibling?.type === nextWorkOfUnit?.type
+      && workInProcessRootFiber?.sibling.dom === nextWorkOfUnit?.dom
+    ) {
       nextWorkOfUnit = undefined;
     }
 
