@@ -18,22 +18,22 @@ function FunctionComponent2({ num }) {
   )
 }
 
-let countNum = 0;
-let countProps = { id: 'Counter', className: 'red' };
+// let countProps = { id: 'Counter', className: 'red' };
 function Counter() {
   console.log('render Counter');
 
-  const update = React.update();
+  const [count, setCount] = React.useState(10);
+
   function handleClick(e) {
-    countNum++;
-    countProps.className = countNum % 2 === 0 ? 'red' : 'blue';
-    update();
-    console.log('handle Counter click', e)
+    setCount((count) => count+1);
+    // countProps.className = countNum % 2 === 0 ? 'red' : 'blue';
+    console.log('handle Counter click', count, e)
   }
 
   return (
-    <button {...countProps} onClick={handleClick}>
-      Click Me {countNum}
+    // <button {...countProps} onClick={handleClick}>
+    <button onClick={handleClick}>
+      Click Me {count}
     </button>
   )
 }

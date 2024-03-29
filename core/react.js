@@ -246,10 +246,32 @@ function update() {
   }
 }
 
+function useState(initValue) {
+  let currentFiber = workInProcessFiber;
+  const oldHook = currentFiber?.alternate?.stateHook;
+  const stateHook = {
+    state: oldHook ? oldHook.state : initValue,
+  }
+  currentFiber.stateHook = stateHook;
+
+  let setState = (action) => {
+    stateHook.state = action(stateHook.state);
+
+    workInProcessRootFiber = {
+      ...currentFiber,
+      alternate: currentFiber,
+    };
+    nextWorkOfUnit = workInProcessRootFiber;
+  };
+
+  return [stateHook.state, setState];
+}
+
 const React = {
   createElement,
   render,
   update,
+  useState,
 }
 
 export default React;
