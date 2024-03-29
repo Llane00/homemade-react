@@ -271,6 +271,10 @@ function useState(initValue) {
   currentFiber.stateHooks = stateHooks;
 
   let setState = (action) => {
+    // 提前去监测一下action的值,如何和当前state一样则不更新
+    const eagerState = typeof action === 'function' ? action(stateHook.state) : action;
+    if (eagerState === stateHook.state) return;
+
     action = typeof action === 'function' ? action : () => action;
     stateHook.actionQueue.push(action);
 
