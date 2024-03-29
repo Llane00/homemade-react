@@ -161,13 +161,13 @@ function deleteFiber(fiber) {
   }
 };
 
-function handleFibersNeedDelete() {
+function commitDeletions() {
   fibersNeedDelete.map((fiber) => deleteFiber(fiber));
   fibersNeedDelete = [];
 }
 
 function commitRoot() {
-  handleFibersNeedDelete();
+  commitDeletions();
 
   commitWork(workInProcessRootFiber.child)
   workInProcessRootFiber = null;
@@ -274,12 +274,12 @@ function useState(initValue) {
   currentFiber.stateHooks = stateHooks;
 
   let setState = (action) => {
-    // 提前去监测一下action的值,如何和当前state一样则不更新
+    // 先收集action，等到下次调用useState时再统一处理
+    stateHook.actionQueue.push(typeof action === 'function' ? action : () => action);
+
+    // 提前去监测一下action的值,如果和当前state一样则不更新
     const eagerState = typeof action === 'function' ? action(stateHook.state) : action;
     if (eagerState === stateHook.state) return;
-
-    action = typeof action === 'function' ? action : () => action;
-    stateHook.actionQueue.push(action);
 
     workInProcessRootFiber = {
       ...currentFiber,
