@@ -1,6 +1,5 @@
 let workInProcessRootFiber = null;
 let workInProcessFiber = null;
-let currentRootFiber = null;
 let nextWorkOfUnit = null;
 let fibersNeedDelete = [];
 
@@ -165,7 +164,6 @@ function commitRoot() {
   handleFibersNeedDelete();
 
   commitWork(workInProcessRootFiber.child)
-  currentRootFiber = workInProcessRootFiber;
   workInProcessRootFiber = null;
 }
 
@@ -202,6 +200,12 @@ function workLoop(IdleDeadline) {
   let shouldYield = false;
   while (nextWorkOfUnit && !shouldYield) {
     nextWorkOfUnit = performWorkOfUnit(nextWorkOfUnit);
+
+    // 如果下一个work的fiber节点是 当前update的节点的兄弟节点，说明当前update的节点已经处理完成
+    if (workInProcessRootFiber?.sibling?.type === nextWorkOfUnit?.type) {
+      nextWorkOfUnit = undefined;
+    }
+
     shouldYield = IdleDeadline.timeRemaining() < 1;
   }
 
@@ -209,7 +213,6 @@ function workLoop(IdleDeadline) {
   if (!nextWorkOfUnit && workInProcessRootFiber) {
     commitRoot();
   }
-
   requestIdleCallback(workLoop);
 }
 
@@ -231,13 +234,14 @@ function render(element, container) {
 
 function update() {
   let currentFiber = workInProcessFiber;
+  // 这里使用闭包不让后续的FunctionComponent更新覆盖workInProcessRootFiber
+  // 保存下update的workInProcessRootFiber
   return () => {
-    console.log(1, currentFiber)
+    console.log('update fiber', currentFiber);
     workInProcessRootFiber = {
-      props: currentRootFiber.props,
-      dom: currentRootFiber.dom,
-      alternate: currentRootFiber,
-    }
+      ...currentFiber,
+      alternate: currentFiber,
+    };
     nextWorkOfUnit = workInProcessRootFiber;
   }
 }

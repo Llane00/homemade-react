@@ -1,25 +1,25 @@
 import React from "./core/react";
 
 const FunctionComponent1 = ({ num }) => {
-  console.log('render FunctionComponent1');
+  console.log('render FunctionComponent', num);
 
-  return (<p>
+  return (<p id="FunctionComponent1">
     FunctionComponent {num}
   </p>);
 }
 
 function FunctionComponent2({ num }) {
-  console.log('render FunctionComponent2');
+  console.log('render FunctionComponent', num);
 
   return (
-    <div>
+    <div id="FunctionComponent2">
       FunctionComponent <span>{num}</span>
     </div>
   )
 }
 
 let countNum = 0;
-let countProps = { className: 'red' };
+let countProps = { id: 'Counter', className: 'red' };
 function Counter() {
   console.log('render Counter');
 
@@ -60,26 +60,13 @@ function ToggleComponent() {
   }
 
   return (
-    <div>
-      <button onClick={handleShowBar}>showBar</button>
+    <div id="ToggleComponent">
       <div>{showBar ? bar : foo}</div>
+      <div>p1</div>
       {showBar && bar}
+      <div>p2</div>
+      <button onClick={handleShowBar}>showBar</button>
     </div>
-  )
-}
-
-const AddDivButton = () => {
-  console.log('render AddDivButton');
-
-  function addDiv() {
-    const containerDom = document.querySelector("#displayContainer1");
-    const div = document.createElement("div");
-    div.innerHTML = "add div";
-    containerDom.appendChild(div);
-  }
-
-  return (
-    <button onClick={addDiv}>add div</button>
   )
 }
 
@@ -89,24 +76,22 @@ const App = () => {
   return (
     <div>
       Hi React!
-      <div id="displayContainer1">
-        <ToggleComponent />
-      </div>
-      <AddDivButton />
+      <ToggleComponent />
       <div>
         <div>
           <FunctionComponent1 num={1} />
         </div>
       </div>
       <div>
-        <div>
-          <div>
-            <FunctionComponent2 num={2} />
-          </div>
-        </div>
+        <Counter />
+        <FunctionComponent2 num={2} />
       </div>
       <div>
-        <Counter />
+        <div>
+          <div>
+            <FunctionComponent2 num={3} />
+          </div>
+        </div>
       </div>
     </div>
   );
