@@ -25,9 +25,9 @@ function Counter() {
   const [countProps, setCountProps] = React.useState({ id: 'Counter', className: 'red' });
 
 
-  // React.useEffect(() => {
-  //   console.log('useEffect init')
-  // }, [])
+  React.useEffect(() => {
+    console.log('useEffect init')
+  }, [])
 
   React.useEffect(() => {
     console.log('useEffect update')
@@ -46,7 +46,6 @@ function Counter() {
       <button {...countProps} onClick={handleClick}>
         Click Me
       </button>
-      {/* <ToggleComponent /> */}
     </div>
   )
 }
@@ -94,7 +93,6 @@ const App = () => {
       </div>
       <div>
         <Counter />
-        <FunctionComponent2 num={2} />
       </div>
       <div>
         <div>

@@ -4,6 +4,7 @@ let nextWorkOfUnit = null;
 let fibersNeedDelete = [];
 let stateHooks;
 let stateHookIndex;
+let effectHooks
 
 function createTextNode(text) {
   return {
@@ -124,6 +125,7 @@ function getNextWorkOfUnit(fiber) {
 function updateFunctionComponent(fiber) {
   stateHooks = [];
   stateHookIndex = 0;
+  effectHooks = [];
   workInProcessFiber = fiber;
 
   const children = [fiber.type(fiber.props)];
@@ -296,18 +298,26 @@ function commitEffectHooks() {
     if (!fiber) return;
 
     const oldFiber = fiber?.alternate;
-    // init时
-    if (!oldFiber) {
-      fiber.effectHook?.callback();
-    } else {
-      // update时
-      const deps = fiber.effectHook?.deps;
-      const oldDeps = oldFiber.effectHook?.deps;
-      const isDepsChanged = !oldDeps || oldDeps.some((oldDep, index) => oldDep !== deps[index]);
 
-      if (isDepsChanged) {
-        fiber.effectHook?.callback();
-      }
+    // init
+    if (!fiber?.alternate) {
+      console.log('init', fiber);
+
+      fiber?.effectHooks?.forEach((hook) => {
+        hook?.callback();
+      });
+    } else {
+      console.log('update', fiber);
+      // update
+      fiber?.effectHooks?.forEach((newHook, index) => {
+        if (newHook.deps?.length > 0) {
+          const oldEffectHook = oldFiber?.effectHooks[index];
+
+          const isDepsChanged = oldEffectHook?.deps.some((oldDep, oldDepIndex) => oldDep !== newHook?.deps[oldDepIndex]);
+
+          isDepsChanged && newHook.callback();
+        }
+      })
     }
 
     run(fiber.child);
@@ -322,8 +332,8 @@ function useEffect(callback, deps) {
     callback,
     deps,
   }
-
-  workInProcessFiber.effectHook = effectHook;
+  effectHooks.push(effectHook);
+  workInProcessFiber.effectHooks = effectHooks;
 }
 
 const React = {
