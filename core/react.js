@@ -168,8 +168,8 @@ function commitDeletions() {
 
 function commitRoot() {
   commitDeletions();
-
-  commitWork(workInProcessRootFiber.child)
+  commitWork(workInProcessRootFiber.child);
+  commitEffectHooks();
   workInProcessRootFiber = null;
 }
 
@@ -291,11 +291,47 @@ function useState(initValue) {
   return [stateHook.state, setState];
 }
 
+function commitEffectHooks() {
+  function run(fiber) {
+    if (!fiber) return;
+
+    const oldFiber = fiber?.alternate;
+    // init时
+    if (!oldFiber) {
+      fiber.effectHook?.callback();
+    } else {
+      // update时
+      const deps = fiber.effectHook?.deps;
+      const oldDeps = oldFiber.effectHook?.deps;
+      const isDepsChanged = !oldDeps || oldDeps.some((oldDep, index) => oldDep !== deps[index]);
+
+      if (isDepsChanged) {
+        fiber.effectHook?.callback();
+      }
+    }
+
+    run(fiber.child);
+    run(fiber.sibling);
+  }
+
+  run(workInProcessRootFiber);
+}
+
+function useEffect(callback, deps) {
+  const effectHook = {
+    callback,
+    deps,
+  }
+
+  workInProcessFiber.effectHook = effectHook;
+}
+
 const React = {
   createElement,
   render,
   update,
   useState,
+  useEffect,
 }
 
 export default React;

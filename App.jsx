@@ -24,6 +24,15 @@ function Counter() {
   const [count, setCount] = React.useState(1);
   const [countProps, setCountProps] = React.useState({ id: 'Counter', className: 'red' });
 
+
+  // React.useEffect(() => {
+  //   console.log('useEffect init')
+  // }, [])
+
+  React.useEffect(() => {
+    console.log('useEffect update')
+  }, [count, countProps])
+
   function handleClick(e) {
     setCount((count) => count + 1);
     setCountProps((countProps) => countProps.className === 'red' ? { id: 'Counter', className: 'blue' } : { id: 'Counter', className: 'red' });
