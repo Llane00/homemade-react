@@ -129,7 +129,6 @@ function updateFunctionComponent(fiber) {
   workInProcessFiber = fiber;
 
   const children = [fiber.type(fiber.props)];
-
   reconcileChildrenFibers(fiber, children);
 }
 
@@ -301,13 +300,13 @@ function commitEffectHooks() {
 
     // init
     if (!fiber?.alternate) {
-      console.log('init', fiber);
+      // console.log('init', fiber);
 
       fiber?.effectHooks?.forEach((hook) => {
-        hook?.callback();
+        hook.cleanup = hook.callback();
       });
     } else {
-      console.log('update', fiber);
+      // console.log('update', fiber);
       // update
       fiber?.effectHooks?.forEach((newHook, index) => {
         if (newHook.deps?.length > 0) {
@@ -315,7 +314,7 @@ function commitEffectHooks() {
 
           const isDepsChanged = oldEffectHook?.deps.some((oldDep, oldDepIndex) => oldDep !== newHook?.deps[oldDepIndex]);
 
-          isDepsChanged && newHook.callback();
+          isDepsChanged && (newHook.cleanup = newHook.callback());
         }
       })
     }
@@ -324,6 +323,20 @@ function commitEffectHooks() {
     run(fiber.sibling);
   }
 
+  function runCleanup(fiber) {
+    if (!fiber) return;
+
+    fiber?.alternate?.effectHooks?.forEach((hook) => {
+      if (hook?.deps?.length > 0) {
+        hook?.cleanup && hook?.cleanup();
+      }
+    })
+
+    runCleanup(fiber.child);
+    runCleanup(fiber.sibling);
+  }
+
+  runCleanup(workInProcessRootFiber);
   run(workInProcessRootFiber);
 }
 
@@ -331,6 +344,7 @@ function useEffect(callback, deps) {
   const effectHook = {
     callback,
     deps,
+    cleanup: null,
   }
   effectHooks.push(effectHook);
   workInProcessFiber.effectHooks = effectHooks;

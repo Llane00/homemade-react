@@ -27,10 +27,23 @@ function Counter() {
 
   React.useEffect(() => {
     console.log('useEffect init')
+    return () => {
+      console.log('useEffect cleanup 0');
+    };
   }, [])
 
   React.useEffect(() => {
     console.log('useEffect update')
+    return () => {
+      console.log('useEffect cleanup 1');
+    };
+  }, [count])
+
+  React.useEffect(() => {
+    console.log('useEffect update')
+    return () => {
+      console.log('useEffect cleanup 2');
+    };
   }, [count, countProps])
 
   function handleClick(e) {
