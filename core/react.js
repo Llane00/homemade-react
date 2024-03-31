@@ -36,6 +36,8 @@ function createDom(type) {
 }
 
 function updateProps(domElement, nextProps, prevProps = {}) {
+  if (!domElement) return;
+
   // 旧fiber有props ，新fiber没有props 需删除
   for (const key in prevProps) {
     if (key === "children") continue;
@@ -223,6 +225,11 @@ function workLoop(IdleDeadline) {
   if (!nextWorkOfUnit && workInProcessRootFiber) {
     commitRoot();
   }
+
+  if (nextWorkOfUnit && !workInProcessRootFiber) {
+    workInProcessRootFiber = nextWorkOfUnit;
+  }
+
   requestIdleCallback(workLoop);
 }
 
