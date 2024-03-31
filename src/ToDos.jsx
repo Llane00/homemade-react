@@ -12,6 +12,7 @@ const ToDoList = () => {
       return;
     }
     const newTask = {
+      id: crypto.randomUUID(),
       name: taskName,
       isCompleted: false,
     }
@@ -19,9 +20,9 @@ const ToDoList = () => {
     setInputValue('');
   }
 
-  function toggleTaskState(index) {
-    const newList = list.map((task, i) => {
-      if (i === index) {
+  function toggleTaskState(id) {
+    const newList = list.map((task) => {
+      if (id === task.id) {
         task.isCompleted = !task.isCompleted;
       }
       return task;
@@ -29,8 +30,8 @@ const ToDoList = () => {
     setList(newList);
   }
 
-  function deleteTask(index) {
-    const newList = list.filter((task, i) => i !== index);
+  function deleteTask(id) {
+    const newList = list.filter((task) => id !== task.id);
     setList(newList);
   }
 
@@ -53,12 +54,12 @@ const ToDoList = () => {
         <h2>task list:</h2>
         {hasData && (<ul>
           {
-            ...filterList.map((task, index) => {
+            ...filterList.map((task) => {
               return (
-                <li key={index} className={task.isCompleted ? 'done-state' : 'undone-state'}>
+                <li key={task.id} className={task.isCompleted ? 'done-state' : 'undone-state'}>
                   <span className="mr-10">{task.name}</span>
-                  <button className="mr-10" onClick={() => toggleTaskState(index)}>{task.isCompleted ? 'UnDone' : 'Done'}</button>
-                  <button onClick={() => deleteTask(index)}>Delete</button>
+                  <button className="mr-10" onClick={() => toggleTaskState(task.id)}>{task.isCompleted ? 'UnDone' : 'Done'}</button>
+                  <button onClick={() => deleteTask(task.id)}>Delete</button>
                 </li>
               )
             })
