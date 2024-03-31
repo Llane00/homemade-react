@@ -1,3 +1,8 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
 .red {
   background-color: red;
 }
@@ -11,6 +16,92 @@
   margin-right: 10px;
 }
 
-.done-state {
+.todos-container {
+  padding: 10px 20px;
+  height: 100vh;
+  color: white;
+  background-color: #333;
+}
+
+.options-container {
+  margin: 10px 0 0;
+}
+
+.options-input {
+  width: 200px;
+  padding: 5px;
+  border-radius: 5px;
+  border: 2px solid yellowgreen;
+}
+
+.options-button {
+  margin-left: 10px;
+  padding: 5px 10px;
+  color: #333;
+  font-weight: bold;
+  border-radius: 5px;
+  border: 2px solid yellowgreen;
+  background-color: yellowgreen;
+}
+
+.filter-container {
+  margin: 14px 0 0;
+}
+
+.filter-item {
+  margin-right: 10px;
+  padding: 2px 6px;
+  border-radius: 5px;
+  border: 2px solid yellowgreen;
+}
+
+.filter-item.active {
+  color: #333;
+  font-weight: bold;
+  background-color: yellowgreen;
+}
+
+.task-list {
+  margin: 20px 0 0 0;
+  list-style: none;
+}
+
+.task-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  margin: 0 0 14px;
+  width: 480px;
+  border-radius: 5px;
+  background-color: #777;
+}
+
+.task-item.done-state {
+  color: #333;
+  background-color: #666;
+}
+
+.task-item.done-state .task-name {
   text-decoration: line-through;
 }
+
+.task-content > .task-index {
+  margin-right: 4px;
+}
+
+.task-content > .task-name {
+  margin-right: 10px;
+}
+
+.task-item .task-action-button {
+  margin-left: 10px;
+  padding: 5px 10px;
+  color: #333;
+  font-weight: bold;
+  border-radius: 5px;
+  border: 2px solid yellowgreen;
+  background-color: yellowgreen;
+}
+
+

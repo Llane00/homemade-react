@@ -93,7 +93,9 @@ function reconcileChildrenFibers(parentFiber, children) {
     if (index === 0) {
       parentFiber.child = newFiber;
     } else {
-      prevChild.sibling = newFiber;
+      if (!!prevChild) {
+        prevChild.sibling = newFiber;
+      }
     }
 
     if (newFiber) {

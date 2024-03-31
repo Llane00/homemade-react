@@ -5,6 +5,14 @@ const ToDoList = () => {
   const [inputValue, setInputValue] = React.useState('');
   const [filter, setFilter] = React.useState('All');
 
+  React.useEffect(() => {
+    loadTasks();
+
+    return () => {
+      saveTasks();
+    }
+  }, []);
+
   const addTask = () => {
     const taskName = inputValue;
     if (taskName === '') {
@@ -16,8 +24,31 @@ const ToDoList = () => {
       name: taskName,
       isCompleted: false,
     }
-    setList((list) => [...list, newTask]);
+    const newListData = [...list, newTask];
+    setList((list) => newListData);
     setInputValue('');
+    saveTasks(newListData);
+  }
+
+  const saveTasks = (listData) => {
+    let result = listData;
+    if (!Array.isArray(listData)) {
+      result = list;
+    }
+
+    localStorage.setItem('taskList', JSON.stringify(result));
+  }
+
+  const resetTasks = () => {
+    setList([]);
+    localStorage.removeItem('taskList');
+  }
+
+  const loadTasks = () => {
+    const taskList = localStorage.getItem('taskList');
+    if (taskList) {
+      setList(JSON.parse(taskList));
+    }
   }
 
   function toggleTaskState(id) {
@@ -28,11 +59,28 @@ const ToDoList = () => {
       return task;
     });
     setList(newList);
+    saveTasks(newList);
   }
 
   function deleteTask(id) {
     const newList = list.filter((task) => id !== task.id);
     setList(newList);
+    saveTasks(newList);
+  }
+
+  const TaskItem = ({ task, indexNumber }) => {
+    return (
+      <li className={`task-item ${task.isCompleted ? 'done-state' : 'undone-state'}`}>
+        <div className="task-content">
+          <span className="task-index">{Number(indexNumber) + 1}.</span>
+          <span className="task-name">{task.name}</span>
+        </div>
+        <div className="task-actions">
+          <button className="task-action-button mr-10" onClick={() => toggleTaskState(task.id)}>{task.isCompleted ? 'Cancel' : 'Done'}</button>
+          <button className="task-action-button" onClick={() => deleteTask(task.id)}>Delete</button>
+        </div>
+      </li>
+    )
   }
 
   const TaskList = () => {
@@ -51,60 +99,65 @@ const ToDoList = () => {
 
     return (
       <div>
-        <h2>task list:</h2>
-        {hasData && (<ul>
+        {hasData && (<ul className="task-list">
           {
-            ...filterList.map((task) => {
+            ...filterList.map((task, index) => {
               return (
-                <li key={task.id} className={task.isCompleted ? 'done-state' : 'undone-state'}>
-                  <span className="mr-10">{task.name}</span>
-                  <button className="mr-10" onClick={() => toggleTaskState(task.id)}>{task.isCompleted ? 'UnDone' : 'Done'}</button>
-                  <button onClick={() => deleteTask(task.id)}>Delete</button>
-                </li>
+                <TaskItem key={task.id} task={task} indexNumber={index} />
               )
             })
           }
-        </ul>)}
-        {!hasData && (
-          <div>No Item</div>
-        )}
-      </div>
+        </ul>)
+        }
+        {
+          !hasData && (
+            <div>No Item</div>
+          )
+        }
+      </div >
     )
   }
 
-  const TaskFilter = () => {
+  const Filter = () => {
     return (
-      <div>
-        <div>Filter: {filter}</div>
-        <div>
-          <button className="mr-10" onClick={() => setFilter('All')}>All</button>
-          <button className="mr-10" onClick={() => setFilter('Completed')}>Completed</button>
-          <button className="mr-10" onClick={() => setFilter('Uncompleted')}>Uncompleted</button>
-        </div>
+      <div className="filter-container">
+        <button className={`filter-item ${filter === 'All' ? 'active' : ''}`} onClick={() => setFilter('All')}>All</button>
+        <button className={`filter-item ${filter === 'Completed' ? 'active' : ''}`} onClick={() => setFilter('Completed')}>Completed</button>
+        <button className={`filter-item ${filter === 'Uncompleted' ? 'active' : ''}`} onClick={() => setFilter('Uncompleted')}>Uncompleted</button>
       </div>
     )
   }
 
-  const handleInputChange = (e) => {
+  const handleAddInputChange = (e) => {
     const { value } = e.target;
     !!value && setInputValue(value);
   }
 
-  const TaskOption = () => {
+  const Options = () => {
     return (
-      <div>
-        <input className="mr-10" type="text" placeholder="Please input task name" value={inputValue} onChange={handleInputChange} />
-        <button onClick={addTask}>Add</button>
+      <div className="options-container">
+        <input
+          className="mr-10 options-input"
+          type="text"
+          placeholder="Please input task name"
+          value={inputValue}
+          onChange={handleAddInputChange}
+        />
+        <button className="options-button" onClick={addTask}>Add</button>
+        <button className="options-button" onClick={saveTasks}>Save</button>
+        <button className="options-button" onClick={resetTasks}>Reset</button>
       </div>
     )
   }
 
-  return (<div>
-    <h1>My To Do List</h1>
-    <TaskOption />
-    <TaskFilter />
-    <TaskList />
-  </div>)
+  return (
+    <div className="todos-container">
+      <h1>Work Work</h1>
+      <Options />
+      <Filter />
+      <TaskList />
+    </div>
+  )
 }
 
 export default ToDoList;
