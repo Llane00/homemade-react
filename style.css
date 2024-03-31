@@ -6,3 +6,11 @@
   color: white;
   background-color: blue;
 }
+
+.mr-10 {
+  margin-right: 10px;
+}
+
+.done-state {
+  text-decoration: line-through;
+}

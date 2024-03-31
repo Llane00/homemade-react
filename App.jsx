@@ -1,3 +1,4 @@
+import ToDos from "./src/ToDos";
 import React from "./core/react";
 
 const FunctionComponent1 = ({ num }) => {
@@ -97,7 +98,8 @@ const App = () => {
 
   return (
     <div>
-      <div>Hi React!</div>
+      <ToDos />
+      {/* <div>Hi React!</div>
       <ToggleComponent />
       <div>
         <div>
@@ -113,7 +115,7 @@ const App = () => {
             <FunctionComponent2 num={3} />
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }
